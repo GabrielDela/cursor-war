@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>CURSOR-WAR</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            cursor: none;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 m-0 p-0 w-100 h-100">
+    <svg id="cursor" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="fixed">
+        <circle cx="0.25" cy="0.25" r="0.25" style="padding: -50px" />
+    </svg>
+
+    <svg id="Gabriel" class="fixed top-1/2 left-1/2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="30px"
+        height="30px" style="rotate: 20deg;">
+        <path fill="#fff"
+            d="M17.708 24.645L10.5 30.556 10.5 2.173 30.899 21.749 21.679 22.932 27.505 36.627 23.534 38.342z" />
+        <path fill="#788b9c"
+            d="M11,3.346l18.799,18.04l-7.529,0.966l-1.31,0.168l0.517,1.215l5.373,12.63l-3.052,1.318 l-5.369-12.62l-0.522-1.228l-1.032,0.846L11,29.499V3.346 M10,1v30.612l7.509-6.157L23.271,39l4.889-2.111l-5.762-13.545L32,22.112 L10,1L10,1z" />
+    </svg>
+
+    <script>
+        var cursor = document.getElementById("cursor");
+        var mouse = document.getElementById("Gabriel");
+
+        let color = randomColor();
+        cursor.children[0].style.fill = color;
+        mouse.style.stroke = color;
+
+        var pointer = {
+            x: 0,
+            y: 0
+        }
+
+        var position = {
+            x: 0,
+            y: 0,
+        };
+
+        document.addEventListener("mousemove", function (e) {
+            pointer.x = e.pageX;
+            pointer.y = e.pageY;
+
+            cursor.style.left = (pointer.x - 5.5) + "px";
+            cursor.style.top = (pointer.y - 5.5) + "px";
+        });
+
+        function randomColor() {
+            var color = Math.floor(Math.random() * 16777215).toString(16);
+            return "#" + color;
+        }
+
+        async function tempo() {
+            // wait 1 sec
+            await new Promise(resolve => setTimeout(resolve, 10));
+
+            //get difference betwwen position cursor and mouse
+            var diffX = position.x - pointer.x;
+            var diffY = position.y - pointer.y;
+
+            // calculate deg of rotation of mouse
+            var deg = Math.atan2(diffY, diffX) * 180 / Math.PI;
+
+
+            var moveX = 0;
+            if (diffX > 1) {
+                moveX = (diffX * 0.05);
+                position.x -= moveX;
+            }
+            else if (diffX < -1) {
+                moveX = (diffX * 0.05);
+                position.x -= moveX;
+            }
+
+            var moveY = 0;
+            if (diffY > -9) {
+                moveY = (diffY * 0.05);
+                position.y -= moveY;
+            }
+            else if (diffY < -10) {
+                moveY = (diffY * 0.05);
+                position.y -= moveY;
+            }
+
+            mouse.style.left = (position.x - 20) + "px";
+            mouse.style.top = (position.y - 15) + "px";
+
+            if(diffX > 15 || diffX < -15 || diffY > 15 || diffY < -15){
+                mouse.style.transform = "rotate(" + (deg - 90) + "deg)";
+            }
+            else {
+                let color = randomColor();
+                cursor.children[0].style.fill = color;
+                mouse.style.stroke = color;
+            }
+           
+            tempo();
+        }
+
+        tempo();
+    </script>
+</body>
+
+</html>
