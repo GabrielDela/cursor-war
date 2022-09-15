@@ -17,13 +17,31 @@
 
 <body class="bg-gray-100 m-0 p-0 w-100 h-100" id="board">
 
-    <div id="menu" class="fixed bg-neutral-900 top-0 opacity-50 w-full h-full z-10 cursor-menu"
-        style="transition: 1s; left: 0px;">
+    <div id="hidder" class="fixed bg-neutral-900 top-0 opacity-50 w-full h-full z-10 cursor-menu"
+        style="transition: 1s; left: 0px;"></div>
+    <div id="menu" class="fixed  top-0  w-full h-full z-10 cursor-menu" style="transition: 1s; left: 0px;">
         <div class="flex flex-col justify-center items-center h-full cursor-menu">
-            <h1 class="text-6xl text-white py-6 cursor-menu">CURSOR-WAR</h1>
-            <input type="text" id="username" class="bg-white rounded-lg p-2 m-2 placeholder:text-black cursor-menu"
+            <h1 class="text-6xl text-white pb-16 cursor-menu">CURSOR-WAR</h1>
+            <input type="text" id="username" class="bg-white rounded-lg p-2 mb-6 placeholder:text-black cursor-menu"
                 placeholder="Enter your username">
-            <button class="bg-white text-black text-2xl px-4 py-2 rounded-lg mt-4" onclick="startGame()">START</button>
+
+            <!-- color picker -->
+            <div class="flex flex-row justify-center items-center cursor-menu pb-4">
+                <div class="flex flex-col justify-center items-center cursor-menu">
+                    <h1 class="text-white text-2xl cursor-menu">Choose your color</h1>
+                    <div class="flex flex-row justify-center items-center cursor-menu">
+                        <button class="bg-red-500 w-10 h-10 rounded-full m-2 cursor-menu color-picker"
+                            onclick="changeColor('#ef4444')" id="ef4444"></button>
+                        <button class="bg-blue-500 w-10 h-10 rounded-full m-2 cursor-menu color-picker"
+                            onclick="changeColor('#3b82f6')" id="3b82f6"></button>
+                        <button class="bg-green-500 w-10 h-10 rounded-full m-2 cursor-menu color-picker"
+                            onclick="changeColor('#22c55e')" id="22c55e"></button>
+                        <button class="bg-orange-500 w-10 h-10 rounded-full m-2 cursor-menu color-picker"
+                            onclick="changeColor('#f97316')" id="f97316"></button>
+                    </div>
+                </div>
+            </div>
+            <button class="bg-white text-black text-2xl px-4 py-2 rounded-lg mt-4" onclick="login()">START</button>
         </div>
     </div>
 
@@ -44,6 +62,7 @@
         var users = [];
 
         var username;
+        var color = randomColor();
 
         var pointer = {
             x: 0,
@@ -58,8 +77,22 @@
         var oldPosition = null;
 
         function randomColor() {
-            var color = Math.floor(Math.random() * 16777215).toString(16);
-            return "#" + color;
+            var colors = ["#ef4444", "#3b82f6", "#22c55e", "#f97316"];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        function changeColor(choosen) {
+            //remove border for each element with class color-picker
+            var colorPickers = document.getElementsByClassName("color-picker");
+            for (var i = 0; i < colorPickers.length; i++) {
+                colorPickers[i].style.border = "none";
+            }
+
+            //add border to choosen color
+            let DOMElement = document.getElementById(choosen.substring(1));
+            DOMElement.style.border = "2px solid white";
+
+            color = choosen;
         }
 
         function randomUsername() {
@@ -77,7 +110,6 @@
 
             // calculate deg of rotation of mouse
             var deg = Math.atan2(diffY, diffX) * 180 / Math.PI;
-
 
             var moveX = 0;
             if (diffX > 1) {
@@ -106,13 +138,16 @@
             }
 
             let mouse = document.getElementById(username);
-            let tag_username = document.getElementById("tag_" + username);
-
             mouse.style.left = (position.x - 10) + "px";
             mouse.style.top = (position.y - 12) + "px";
 
-            tag_username.style.left = (position.x - 25) + "px";
-            tag_username.style.top = (position.y + 10) + "px";
+            // username text width
+            let username_text = document.getElementById("username_" + username);
+            var username_text_width = username_text.clientWidth;
+
+            //center username text under mouse
+            username_text.style.left = (position.x - (username_text_width / 2)) + "px";
+            username_text.style.top = (position.y + 10) + "px";
 
             if (diffX > 5 || diffX < -5 || diffY > 5 || diffY < -5) {
                 mouse.style.transform = "rotate(" + (deg - 90) + "deg)";
@@ -127,10 +162,20 @@
             tempo();
         }
 
+        function login(){
+            socket.emit('login', {
+                username: document.getElementById("username").value,
+                color: color
+            });
+        }
+
         function startGame() {
             username = document.getElementById("username").value;
+
             var menu = document.getElementById("menu");
+            var hidder = document.getElementById("hidder");
             menu.style.left = "-100%";
+            hidder.style.left = "-100%";
 
             // create cursor for user
             let DOMCursor =
@@ -144,16 +189,12 @@
             var domElement =
                 `<svg id="${username}" class="fixed" width="17" height="21" viewBox="0 0 17 21" fill="none"
                 xmlns="http://www.w3.org/2000/svg">
-                <path d="M8.49995 0L16.7272 20.25L8.49995 17.5L0.272705 20.25L8.49995 0Z" fill="white" />
+                <path d="M8.49995 0L16.7272 20.25L8.49995 17.5L0.272705 20.25L8.49995 0Z" fill="${color}"/>
             </svg>
-            <text id="tag_${username}" class="fixed">${username}</text>`;
+            <text id="username_${username}" class="fixed">${username}</text>`;
             board.innerHTML += domElement;
             var mouse = document.getElementById(username);
-
-            // add custom cursor style
-            let color = randomColor();
-            cursor.children[0].style.fill = color;
-            mouse.style.stroke = color;
+            mouse.style.stroke = "black";
 
             // add cursor pointer movement event
             document.addEventListener("mousemove", function (e) {
@@ -166,39 +207,53 @@
             });
 
             // prepare initial position of mouse and color historisation
-            position.username = username;
-            position.color = color;
+            // position.username = username;
+            // position.color = color;
 
             tempo();
         }
 
         // SOCKET IO SECTION
 
+        socket.on('login', function (response) {
+            if (response.success) {
+                startGame();
+            }
+            else {
+                alert(response.message);
+            }
+        });
+
         socket.on('move', function (data) {
-            let found = users.find(element => element.tag == data.tag);
+            let found = users.find(element => element.username == data.username);
 
             if (!found) {
-                users.push({ tag: data.tag, socket_id: data.socket_id });
+                users.push({ username: data.username, socket_id: data.socket_id });
 
                 var domElement =
-                    `<svg id="${data.tag}" class="fixed" width="17" height="21" viewBox="0 0 17 21" fill="none"
+                `<svg id="${data.username}" class="fixed" width="17" height="21" viewBox="0 0 17 21" fill="none"
                     xmlns="http://www.w3.org/2000/svg">
-                    <path d="M8.49995 0L16.7272 20.25L8.49995 17.5L0.272705 20.25L8.49995 0Z" fill="white" />
+                    <path d="M8.49995 0L16.7272 20.25L8.49995 17.5L0.272705 20.25L8.49995 0Z" fill="${data.color}"/>
                 </svg>
-                <text id="tag_${data.tag}" class="fixed">${data.tag}</text>`;
-
+                <text id="username_${data.username}" class="fixed">${data.username}</text>`;
                 board.innerHTML += domElement;
+
+                let mouse = document.getElementById(data.username);
+                mouse.style.stroke = "black";
             }
 
-            let mouse = document.getElementById(data.tag);
+            let mouse = document.getElementById(data.username);
             mouse.style.left = (data.x - 10) + "px";
             mouse.style.top = (data.y - 12) + "px";
             mouse.style.transform = "rotate(" + (data.rotation - 90) + "deg)";
-            mouse.style.stroke = data.color;
 
-            let tag_username = document.getElementById("tag_" + data.tag);
-            tag_username.style.left = (data.x - 25) + "px";
-            tag_username.style.top = (data.y + 10) + "px";
+            // username text width
+            let username_text = document.getElementById("username_" + data.username);
+            var username_text_width = username_text.clientWidth;
+
+            //center username text under mouse
+            username_text.style.left = (data.x - (username_text_width / 2)) + "px";
+            username_text.style.top = (data.y + 10) + "px";
         });
 
         socket.on('remove', function (socket_id) {
@@ -207,10 +262,10 @@
             });
 
             if (data) {
-                let mouse = document.getElementById(data.tag);
+                let mouse = document.getElementById(data.username);
+                let username_text = document.getElementById("username_" + data.username);
                 mouse.remove();
-                let tag_username = document.getElementById("tag_" + data.tag);
-                tag_username.remove();
+                username_text.remove();
             }
         });
     </script>
