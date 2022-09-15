@@ -8,19 +8,32 @@
         * {
             cursor: none;
         }
+
+        .cursor-menu {
+            cursor: default;
+        }
     </style>
 </head>
 
 <body class="bg-gray-100 m-0 p-0 w-100 h-100" id="board">
 
-    <svg id="cursor" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="fixed">
+    <div id="menu" class="fixed bg-neutral-900 top-0 opacity-50 w-full h-full z-10 cursor-menu"
+        style="transition: 1s; left: 0px;">
+        <div class="flex flex-col justify-center items-center h-full cursor-menu">
+            <h1 class="text-6xl text-white py-6 cursor-menu">CURSOR-WAR</h1>
+            <input type="text" id="username" class="bg-white rounded-lg p-2 m-2 placeholder:text-black cursor-menu"
+                placeholder="Enter your username">
+            <button class="bg-white text-black text-2xl px-4 py-2 rounded-lg mt-4" onclick="startGame()">START</button>
+        </div>
+    </div>
+
+    <!-- <svg id="cursor" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="fixed">
         <circle cx="0.25" cy="0.25" r="0.25" style="padding: -50px" />
-    </svg>
+    </svg> -->
 
     <!-- <svg id="Gabriel" class="fixed" width="17" height="21" viewBox="0 0 17 21" fill="none"
         xmlns="http://www.w3.org/2000/svg">
         <path d="M8.49995 0L16.7272 20.25L8.49995 17.5L0.272705 20.25L8.49995 0Z" fill="white" />
-
     </svg> -->
 
     <script src="/socket.io/socket.io.js"></script>
@@ -28,52 +41,21 @@
         var socket = io();
 
         var board = document.getElementById("board");
-        var cursor = document.getElementById("cursor");
-
         var users = [];
 
-        var username = prompt("Enter your username (7 characters max)");
-        while (username.length > 7) {
-            username = prompt("(WRONG) Enter your username (7 characters max)");
-        }
-        var domElement =
-            `<svg id="${username}" class="fixed" width="17" height="21" viewBox="0 0 17 21" fill="none"
-            xmlns="http://www.w3.org/2000/svg">
-            <path d="M8.49995 0L16.7272 20.25L8.49995 17.5L0.272705 20.25L8.49995 0Z" fill="white" />
-        </svg>
-        <text id="tag_${username}" class="fixed">${username}</text>
-        `;
-        board.innerHTML += domElement;
-
-        
-        var mouse = document.getElementById(username);
-        let color = randomColor();
-        cursor.children[0].style.fill = color;
-        mouse.style.stroke = color;
+        var username;
 
         var pointer = {
             x: 0,
             y: 0
-        }
+        };
 
         var position = {
-            tag: username,
             x: 0,
             y: 0,
             rotation: 0,
-            color: color
         };
-
         var oldPosition = null;
-
-        document.addEventListener("mousemove", function (e) {
-            let cursor = document.getElementById("cursor");
-            pointer.x = e.pageX;
-            pointer.y = e.pageY;
-
-            cursor.style.left = (pointer.x - 5.5) + "px";
-            cursor.style.top = (pointer.y - 5.5) + "px";
-        });
 
         function randomColor() {
             var color = Math.floor(Math.random() * 16777215).toString(16);
@@ -145,7 +127,50 @@
             tempo();
         }
 
-        tempo();
+        function startGame() {
+            username = document.getElementById("username").value;
+            var menu = document.getElementById("menu");
+            menu.style.left = "-100%";
+
+            // create cursor for user
+            let DOMCursor =
+                `<svg id="cursor" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="fixed">
+                <circle cx="0.25" cy="0.25" r="0.25" style="padding: -50px" />
+            </svg>`;
+            board.innerHTML += DOMCursor;
+            var cursor = document.getElementById("cursor");
+
+            // create mouse for user
+            var domElement =
+                `<svg id="${username}" class="fixed" width="17" height="21" viewBox="0 0 17 21" fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+                <path d="M8.49995 0L16.7272 20.25L8.49995 17.5L0.272705 20.25L8.49995 0Z" fill="white" />
+            </svg>
+            <text id="tag_${username}" class="fixed">${username}</text>`;
+            board.innerHTML += domElement;
+            var mouse = document.getElementById(username);
+
+            // add custom cursor style
+            let color = randomColor();
+            cursor.children[0].style.fill = color;
+            mouse.style.stroke = color;
+
+            // add cursor pointer movement event
+            document.addEventListener("mousemove", function (e) {
+                let cursor = document.getElementById("cursor");
+                pointer.x = e.pageX;
+                pointer.y = e.pageY;
+
+                cursor.style.left = (pointer.x - 5.5) + "px";
+                cursor.style.top = (pointer.y - 5.5) + "px";
+            });
+
+            // prepare initial position of mouse and color historisation
+            position.username = username;
+            position.color = color;
+
+            tempo();
+        }
 
         // SOCKET IO SECTION
 
@@ -153,7 +178,7 @@
             let found = users.find(element => element.tag == data.tag);
 
             if (!found) {
-                users.push({tag: data.tag, socket_id: data.socket_id});
+                users.push({ tag: data.tag, socket_id: data.socket_id });
 
                 var domElement =
                     `<svg id="${data.tag}" class="fixed" width="17" height="21" viewBox="0 0 17 21" fill="none"
