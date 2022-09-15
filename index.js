@@ -13,13 +13,18 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
     // console.log('a user connected');
 
+    console.log("Connection", socket.id);
+
     socket.on('disconnect', () => {
-        // console.log('user disconnected');
+        console.log("Disconnect", socket.id);
+        socket.broadcast.emit('remove', socket.id);
     });
 
     socket.on('move', (data) => {
+        data.socket_id = socket.id;
         socket.broadcast.emit('move', data);
     });
+
 });
 
 server.listen(3000, () => {

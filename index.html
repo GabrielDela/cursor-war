@@ -27,29 +27,26 @@
     <script>
         var socket = io();
 
-        var users = [];
-
         var board = document.getElementById("board");
         var cursor = document.getElementById("cursor");
-      
-        // alert asking username (length 7);
+
+        var users = [];
+
         var username = prompt("Enter your username (7 characters max)");
         while (username.length > 7) {
             username = prompt("(WRONG) Enter your username (7 characters max)");
         }
-
         var domElement =
-        `<svg id="${username}" class="fixed" width="17" height="21" viewBox="0 0 17 21" fill="none"
+            `<svg id="${username}" class="fixed" width="17" height="21" viewBox="0 0 17 21" fill="none"
             xmlns="http://www.w3.org/2000/svg">
             <path d="M8.49995 0L16.7272 20.25L8.49995 17.5L0.272705 20.25L8.49995 0Z" fill="white" />
         </svg>
         <text id="tag_${username}" class="fixed">${username}</text>
         `;
         board.innerHTML += domElement;
-        users.push(username);
 
+        
         var mouse = document.getElementById(username);
-
         let color = randomColor();
         cursor.children[0].style.fill = color;
         mouse.style.stroke = color;
@@ -150,9 +147,13 @@
 
         tempo();
 
+        // SOCKET IO SECTION
+
         socket.on('move', function (data) {
-            if (!users.includes(data.tag)) {
-                users.push(data.tag);
+            let found = users.find(element => element.tag == data.tag);
+
+            if (!found) {
+                users.push({tag: data.tag, socket_id: data.socket_id});
 
                 var domElement =
                     `<svg id="${data.tag}" class="fixed" width="17" height="21" viewBox="0 0 17 21" fill="none"
@@ -173,6 +174,19 @@
             let tag_username = document.getElementById("tag_" + data.tag);
             tag_username.style.left = (data.x - 25) + "px";
             tag_username.style.top = (data.y + 10) + "px";
+        });
+
+        socket.on('remove', function (socket_id) {
+            var data = users.find(function (user) {
+                return user.socket_id == socket_id;
+            });
+
+            if (data) {
+                let mouse = document.getElementById(data.tag);
+                mouse.remove();
+                let tag_username = document.getElementById("tag_" + data.tag);
+                tag_username.remove();
+            }
         });
     </script>
 </body>
