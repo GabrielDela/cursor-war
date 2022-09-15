@@ -20,6 +20,7 @@
     <!-- <svg id="Gabriel" class="fixed" width="17" height="21" viewBox="0 0 17 21" fill="none"
         xmlns="http://www.w3.org/2000/svg">
         <path d="M8.49995 0L16.7272 20.25L8.49995 17.5L0.272705 20.25L8.49995 0Z" fill="white" />
+
     </svg> -->
 
     <script src="/socket.io/socket.io.js"></script>
@@ -33,10 +34,12 @@
         var username = randomUsername();
 
         var domElement =
-            `<svg id="${username}" class="fixed" width="17" height="21" viewBox="0 0 17 21" fill="none"
+        `<svg id="${username}" class="fixed" width="17" height="21" viewBox="0 0 17 21" fill="none"
             xmlns="http://www.w3.org/2000/svg">
             <path d="M8.49995 0L16.7272 20.25L8.49995 17.5L0.272705 20.25L8.49995 0Z" fill="white" />
-        </svg>`;
+        </svg>
+        <text id="tag_${username}" class="fixed">${username}</text>
+        `;
         board.innerHTML += domElement;
         users.push(username);
 
@@ -119,9 +122,13 @@
             }
 
             let mouse = document.getElementById(username);
+            let tag_username = document.getElementById("tag_" + username);
 
             mouse.style.left = (position.x - 10) + "px";
             mouse.style.top = (position.y - 12) + "px";
+
+            tag_username.style.left = (position.x - 25) + "px";
+            tag_username.style.top = (position.y + 10) + "px";
 
             if (diffX > 5 || diffX < -5 || diffY > 5 || diffY < -5) {
                 mouse.style.transform = "rotate(" + (deg - 90) + "deg)";
@@ -143,19 +150,24 @@
                 users.push(data.tag);
 
                 var domElement =
-                `<svg id="${data.tag}" class="fixed" width="17" height="21" viewBox="0 0 17 21" fill="none"
+                    `<svg id="${data.tag}" class="fixed" width="17" height="21" viewBox="0 0 17 21" fill="none"
                     xmlns="http://www.w3.org/2000/svg">
                     <path d="M8.49995 0L16.7272 20.25L8.49995 17.5L0.272705 20.25L8.49995 0Z" fill="white" />
-                </svg>`;
+                </svg>
+                <text id="tag_${data.tag}" class="fixed">${data.tag}</text>;`;
 
                 board.innerHTML += domElement;
             }
 
-            var mouse = document.getElementById(data.tag);
+            let mouse = document.getElementById(data.tag);
             mouse.style.left = (data.x - 10) + "px";
             mouse.style.top = (data.y - 12) + "px";
             mouse.style.transform = "rotate(" + (data.rotation - 90) + "deg)";
             mouse.style.stroke = data.color;
+
+            let tag_username = document.getElementById("tag_" + data.tag);
+            tag_username.style.left = (data.x - 25) + "px";
+            tag_username.style.top = (data.y + 10) + "px";
         });
     </script>
 </body>
