@@ -23,7 +23,7 @@
         <div class="flex flex-col justify-center items-center h-full cursor-menu">
             <h1 class="text-6xl text-white pb-16 cursor-menu">CURSOR-WAR</h1>
             <input type="text" id="username" class="bg-white rounded-lg p-2 mb-6 placeholder:text-black cursor-menu"
-                placeholder="Enter your username">
+                placeholder="Enter your username" maxlength="14">
 
             <!-- color picker -->
             <div class="flex flex-row justify-center items-center cursor-menu pb-4">
@@ -63,6 +63,8 @@
 
         var username;
         var color = randomColor();
+        let DOMElement = document.getElementById(color.substring(1));
+        DOMElement.style.border = "2px solid white";
 
         var pointer = {
             x: 0,
@@ -95,10 +97,10 @@
             color = choosen;
         }
 
-        function randomUsername() {
-            var username = Math.random().toString(36).substring(7);
-            return username;
-        }
+        // function randomUsername() {
+        //     var username = Math.random().toString(36).substring(7);
+        //     return username;
+        // }
 
         async function tempo() {
             // wait 1 sec
@@ -162,7 +164,14 @@
             tempo();
         }
 
-        function login(){
+        function login() {
+            let username = document.getElementById("username").value;
+
+            if (username == "") {
+                alert("Please enter a username");
+                return;
+            }
+
             socket.emit('login', {
                 username: document.getElementById("username").value,
                 color: color
@@ -231,7 +240,7 @@
                 users.push({ username: data.username, socket_id: data.socket_id });
 
                 var domElement =
-                `<svg id="${data.username}" class="fixed" width="17" height="21" viewBox="0 0 17 21" fill="none"
+                    `<svg id="${data.username}" class="fixed" width="17" height="21" viewBox="0 0 17 21" fill="none"
                     xmlns="http://www.w3.org/2000/svg">
                     <path d="M8.49995 0L16.7272 20.25L8.49995 17.5L0.272705 20.25L8.49995 0Z" fill="${data.color}"/>
                 </svg>
