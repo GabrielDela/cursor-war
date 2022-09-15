@@ -11,14 +11,14 @@ app.get('/', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-    console.log('a user connected');
+    // console.log('a user connected');
 
     socket.on('disconnect', () => {
-        console.log('user disconnected');
+        // console.log('user disconnected');
     });
 
-    socket.on('move', (position) => {
-        io.emit('move', position);
+    socket.on('move', (data) => {
+        socket.broadcast.emit('move', data);
     });
 });
 

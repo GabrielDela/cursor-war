@@ -11,22 +11,36 @@
     </style>
 </head>
 
-<body class="bg-gray-100 m-0 p-0 w-100 h-100">
+<body class="bg-gray-100 m-0 p-0 w-100 h-100" id="board">
+
     <svg id="cursor" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="fixed">
         <circle cx="0.25" cy="0.25" r="0.25" style="padding: -50px" />
     </svg>
 
-    <svg id="Gabriel" class="fixed top-1/2 left-1/2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="30px"
-        height="30px" style="rotate: 20deg;">
-        <path fill="#fff"
-            d="M17.708 24.645L10.5 30.556 10.5 2.173 30.899 21.749 21.679 22.932 27.505 36.627 23.534 38.342z" />
-        <path fill="#788b9c"
-            d="M11,3.346l18.799,18.04l-7.529,0.966l-1.31,0.168l0.517,1.215l5.373,12.63l-3.052,1.318 l-5.369-12.62l-0.522-1.228l-1.032,0.846L11,29.499V3.346 M10,1v30.612l7.509-6.157L23.271,39l4.889-2.111l-5.762-13.545L32,22.112 L10,1L10,1z" />
-    </svg>
+    <!-- <svg id="Gabriel" class="fixed" width="17" height="21" viewBox="0 0 17 21" fill="none"
+        xmlns="http://www.w3.org/2000/svg">
+        <path d="M8.49995 0L16.7272 20.25L8.49995 17.5L0.272705 20.25L8.49995 0Z" fill="white" />
+    </svg> -->
 
+    <script src="/socket.io/socket.io.js"></script>
     <script>
+        var socket = io();
+
+        var users = [];
+
+        var board = document.getElementById("board");
         var cursor = document.getElementById("cursor");
-        var mouse = document.getElementById("Gabriel");
+        var username = randomUsername();
+
+        var domElement =
+            `<svg id="${username}" class="fixed" width="17" height="21" viewBox="0 0 17 21" fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <path d="M8.49995 0L16.7272 20.25L8.49995 17.5L0.272705 20.25L8.49995 0Z" fill="white" />
+        </svg>`;
+        board.innerHTML += domElement;
+        users.push(username);
+
+        var mouse = document.getElementById(username);
 
         let color = randomColor();
         cursor.children[0].style.fill = color;
@@ -38,11 +52,17 @@
         }
 
         var position = {
+            tag: username,
             x: 0,
             y: 0,
+            rotation: 0,
+            color: color
         };
 
+        var oldPosition = null;
+
         document.addEventListener("mousemove", function (e) {
+            let cursor = document.getElementById("cursor");
             pointer.x = e.pageX;
             pointer.y = e.pageY;
 
@@ -53,6 +73,11 @@
         function randomColor() {
             var color = Math.floor(Math.random() * 16777215).toString(16);
             return "#" + color;
+        }
+
+        function randomUsername() {
+            var username = Math.random().toString(36).substring(7);
+            return username;
         }
 
         async function tempo() {
@@ -76,33 +101,62 @@
                 moveX = (diffX * 0.05);
                 position.x -= moveX;
             }
+            else {
+                position.x = pointer.x;
+            }
 
             var moveY = 0;
-            if (diffY > -9) {
+            if (diffY > 1) {
                 moveY = (diffY * 0.05);
                 position.y -= moveY;
             }
-            else if (diffY < -10) {
+            else if (diffY < -1) {
                 moveY = (diffY * 0.05);
                 position.y -= moveY;
-            }
-
-            mouse.style.left = (position.x - 20) + "px";
-            mouse.style.top = (position.y - 15) + "px";
-
-            if(diffX > 15 || diffX < -15 || diffY > 15 || diffY < -15){
-                mouse.style.transform = "rotate(" + (deg - 90) + "deg)";
             }
             else {
-                let color = randomColor();
-                cursor.children[0].style.fill = color;
-                mouse.style.stroke = color;
+                position.y = pointer.y;
             }
-           
+
+            let mouse = document.getElementById(username);
+
+            mouse.style.left = (position.x - 10) + "px";
+            mouse.style.top = (position.y - 12) + "px";
+
+            if (diffX > 5 || diffX < -5 || diffY > 5 || diffY < -5) {
+                mouse.style.transform = "rotate(" + (deg - 90) + "deg)";
+                position.rotation = deg;
+            }
+
+            if (JSON.stringify(position) != JSON.stringify(oldPosition)) {
+                socket.emit("move", position);
+                oldPosition = Object.assign({}, position);
+            }
+
             tempo();
         }
 
         tempo();
+
+        socket.on('move', function (data) {
+            if (!users.includes(data.tag)) {
+                users.push(data.tag);
+
+                var domElement =
+                `<svg id="${data.tag}" class="fixed" width="17" height="21" viewBox="0 0 17 21" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8.49995 0L16.7272 20.25L8.49995 17.5L0.272705 20.25L8.49995 0Z" fill="white" />
+                </svg>`;
+
+                board.innerHTML += domElement;
+            }
+
+            var mouse = document.getElementById(data.tag);
+            mouse.style.left = (data.x - 10) + "px";
+            mouse.style.top = (data.y - 12) + "px";
+            mouse.style.transform = "rotate(" + (data.rotation - 90) + "deg)";
+            mouse.style.stroke = data.color;
+        });
     </script>
 </body>
 
