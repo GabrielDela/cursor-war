@@ -31,7 +31,12 @@
 
         var board = document.getElementById("board");
         var cursor = document.getElementById("cursor");
-        var username = randomUsername();
+      
+        // alert asking username (length 7);
+        var username = prompt("Enter your username (7 characters max)");
+        while (username.length > 7) {
+            username = prompt("(WRONG) Enter your username (7 characters max)");
+        }
 
         var domElement =
         `<svg id="${username}" class="fixed" width="17" height="21" viewBox="0 0 17 21" fill="none"
@@ -154,7 +159,7 @@
                     xmlns="http://www.w3.org/2000/svg">
                     <path d="M8.49995 0L16.7272 20.25L8.49995 17.5L0.272705 20.25L8.49995 0Z" fill="white" />
                 </svg>
-                <text id="tag_${data.tag}" class="fixed">${data.tag}</text>;`;
+                <text id="tag_${data.tag}" class="fixed">${data.tag}</text>`;
 
                 board.innerHTML += domElement;
             }
