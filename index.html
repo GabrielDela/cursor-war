@@ -61,7 +61,7 @@
         </button>
     </div>
 
-    <div id="tchat" class="fixed top-0 bg-indigo-400 h-full z-10 cursor-default" style="width: 500px; right: 0px;">
+    <div id="tchat" class="fixed top-0 bg-indigo-400 h-full z-10 cursor-default" style="width: 500px; right: -500px;">
         <div class="flex h-1/4">
             <button class="px-4" onclick="closeTchat()">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -200,6 +200,8 @@
 
                 chat.appendChild(div);
                 chat.scrollTop = chat.scrollHeight;
+
+                document.getElementById("message").value = "";
             }
             else{
                 alert("Please enter a username and a message.");
