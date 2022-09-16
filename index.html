@@ -5,11 +5,17 @@
     <title>CURSOR-WAR</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * {
+        #board {
             cursor: none;
         }
 
-        .cursor-menu {
+        * {
+            font-family: 'Roboto', sans-serif;
+        }
+
+
+
+        .cursor-default {
             cursor: default;
         }
     </style>
@@ -17,31 +23,95 @@
 
 <body class="bg-gray-100 m-0 p-0 w-100 h-100" id="board">
 
-    <div id="hidder" class="fixed bg-neutral-900 top-0 opacity-50 w-full h-full z-10 cursor-menu"
+    <div id="hidder" class="fixed bg-neutral-900 top-0 opacity-50 w-full h-full z-10 cursor-default"
         style="transition: 1s; left: 0px;"></div>
-    <div id="menu" class="fixed  top-0  w-full h-full z-10 cursor-menu" style="transition: 1s; left: 0px;">
-        <div class="flex flex-col justify-center items-center h-full cursor-menu">
-            <h1 class="text-6xl text-white pb-16 cursor-menu">CURSOR-WAR</h1>
-            <input type="text" id="username" class="bg-white rounded-lg p-2 mb-6 placeholder:text-black cursor-menu"
+    <div id="menu" class="fixed  top-0  w-full h-full z-10 cursor-default" style="transition: 1s; left: 0px;">
+        <div class="flex flex-col justify-center items-center h-full cursor-default">
+            <h1 class="text-6xl text-white pb-16 cursor-default">CURSOR-WAR</h1>
+            <input type="text" id="username" class="bg-white rounded-lg p-2 mb-6 placeholder:text-black cursor-default"
                 placeholder="Enter your username" maxlength="14">
 
             <!-- color picker -->
-            <div class="flex flex-row justify-center items-center cursor-menu pb-4">
-                <div class="flex flex-col justify-center items-center cursor-menu">
-                    <h1 class="text-white text-2xl cursor-menu">Choose your color</h1>
-                    <div class="flex flex-row justify-center items-center cursor-menu">
-                        <button class="bg-red-500 w-10 h-10 rounded-full m-2 cursor-menu color-picker"
+            <div class="flex flex-row justify-center items-center cursor-default pb-4">
+                <div class="flex flex-col justify-center items-center cursor-default">
+                    <h1 class="text-white text-2xl cursor-default">Choose your color</h1>
+                    <div class="flex flex-row justify-center items-center cursor-default">
+                        <button class="bg-red-500 w-10 h-10 rounded-full m-2 cursor-default color-picker"
                             onclick="changeColor('#ef4444')" id="ef4444"></button>
-                        <button class="bg-blue-500 w-10 h-10 rounded-full m-2 cursor-menu color-picker"
+                        <button class="bg-blue-500 w-10 h-10 rounded-full m-2 cursor-default color-picker"
                             onclick="changeColor('#3b82f6')" id="3b82f6"></button>
-                        <button class="bg-green-500 w-10 h-10 rounded-full m-2 cursor-menu color-picker"
+                        <button class="bg-green-500 w-10 h-10 rounded-full m-2 cursor-default color-picker"
                             onclick="changeColor('#22c55e')" id="22c55e"></button>
-                        <button class="bg-orange-500 w-10 h-10 rounded-full m-2 cursor-menu color-picker"
+                        <button class="bg-orange-500 w-10 h-10 rounded-full m-2 cursor-default color-picker"
                             onclick="changeColor('#f97316')" id="f97316"></button>
                     </div>
                 </div>
             </div>
             <button class="bg-white text-black text-2xl px-4 py-2 rounded-lg mt-4" onclick="login()">START</button>
+        </div>
+    </div>
+
+    <div class="fixed bottom-10 right-10 rounded-full h-16 w-16 bg-indigo-400 z-10 cursor-pointer">
+        <button onclick="openTchat()" class="flex w-full h-full cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="w-8 h-8 m-auto text-white cursor-pointer">
+                <path stroke-linecap="round" stroke-linejoin="round" class="cursor-pointer"
+                    d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+            </svg>
+        </button>
+    </div>
+
+    <div id="tchat" class="fixed top-0 bg-indigo-400 h-full z-10 cursor-default" style="width: 500px; right: 0px;">
+        <div class="flex h-1/4">
+            <button class="px-4" onclick="closeTchat()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="w-10 h-10 text-white">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </button>
+            <h1 class="w-full text-center m-auto text-xl font-semibold uppercase text-white">Tchat CURSOR-WAR</h1>
+        </div>
+        <div id="chat" class="flex flex-col w-full h-2/4 px-6" style="overflow: auto;">
+            <!-- <div class="flex flex-col bg-indigo-100 w-3/4 py-2 my-2 rounded">
+                <p class="px-2 font-semibold pb-2">Username</p>
+                <p class="px-2">Message</p>
+            </div>
+
+            <div class="flex flex-col bg-indigo-100 w-3/4 py-2 my-2 ml-auto rounded">
+                <p class="px-2 font-semibold pb-2">Username</p>
+                <p class="px-2">Message</p>
+            </div>
+
+            <div class="flex flex-col bg-indigo-100 w-3/4 py-2 my-2 ml-auto rounded">
+                <p class="px-2 font-semibold pb-2">Username</p>
+                <p class="px-2">Message</p>
+            </div>
+
+            <div class="flex flex-col bg-indigo-100 w-3/4 py-2 my-2 ml-auto rounded">
+                <p class="px-2 font-semibold pb-2">Username</p>
+                <p class="px-2">Message</p>
+            </div>
+
+            <div class="flex flex-col bg-indigo-100 w-3/4 py-2 my-2 ml-auto rounded">
+                <p class="px-2 font-semibold pb-2">Username</p>
+                <p class="px-2">Message</p>
+            </div>
+
+            <div class="flex flex-col bg-indigo-100 w-3/4 py-2 my-2 ml-auto rounded">
+                <p class="px-2 font-semibold pb-2">Username</p>
+                <p class="px-2">Message</p>
+            </div>
+
+            <div class="flex flex-col bg-indigo-100 w-3/4 py-2 my-2 ml-auto rounded">
+                <p class="px-2 font-semibold pb-2">Username</p>
+                <p class="px-2">Message</p>
+            </div> -->
+        </div>
+        <div class="flex px-6 py-6">
+            <input type="text" name="message" id="message" class="bg-white rounded w-2/3 py-3 px-2"
+                placeholder="Message ...">
+            <button class="w-1/3 bg-indigo-600 ml-2 rounded text-white" onclick="sendMessage()">Send</button>
         </div>
     </div>
 
@@ -95,6 +165,45 @@
             DOMElement.style.border = "2px solid white";
 
             color = choosen;
+        }
+
+        function openTchat() {
+            document.getElementById("tchat").style.right = "0px";
+        }
+
+        function closeTchat() {
+            document.getElementById("tchat").style.right = "-500px";
+        }
+
+        function sendMessage() {
+            if (document.getElementById("message").value != "" && username != undefined) {
+                var message = document.getElementById("message").value;
+                socket.emit("message", {
+                    username: username,
+                    message: message
+                });
+
+                var chat = document.getElementById("chat");
+                var div = document.createElement("div");
+                div.classList.add("flex", "flex-col", "bg-indigo-100", "w-3/4", "py-2", "my-2", "ml-auto", "rounded");
+
+                var p1 = document.createElement("p");
+                p1.classList.add("px-2", "font-semibold", "pb-2");
+                p1.innerHTML = username;
+
+                var p2 = document.createElement("p");
+                p2.classList.add("px-2");
+                p2.innerHTML = message;
+
+                div.appendChild(p1);
+                div.appendChild(p2);
+
+                chat.appendChild(div);
+                chat.scrollTop = chat.scrollHeight;
+            }
+            else{
+                alert("Please enter a username and a message.");
+            }
         }
 
         // function randomUsername() {
@@ -276,6 +385,28 @@
                 mouse.remove();
                 username_text.remove();
             }
+        });
+
+        socket.on('message', function (data) {
+            console.log(data);
+            let message = document.createElement("div");
+            message.classList.add("flex", "flex-col", "bg-indigo-100", "w-3/4", "py-2", "my-2", "rounded");
+
+            let username = document.createElement("p");
+            username.classList.add("px-2", "font-semibold", "pb-2");
+            username.innerHTML = data.username;
+
+            let text = document.createElement("p");
+            text.classList.add("px-2");
+            text.innerHTML = data.message;
+
+            message.appendChild(username);
+            message.appendChild(text);
+
+            let chat = document.getElementById("chat");
+            chat.appendChild(message);
+
+            chat.scrollTop = chat.scrollHeight;
         });
     </script>
 </body>

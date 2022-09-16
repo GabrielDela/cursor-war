@@ -41,6 +41,14 @@ io.on('connection', (socket) => {
         };
         socket.broadcast.emit('move', data);
     });
+
+    socket.on('message', (message) => {
+        let data = {
+            username: socket.username,
+            message: message.message,
+        };
+        socket.broadcast.emit('message', data);
+    });
 });
 
 server.listen(3000, () => {
